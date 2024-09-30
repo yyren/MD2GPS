@@ -1,0 +1,75 @@
+{
+    "args": [
+        {
+            "title": "基因变异结果",
+            "order": "1",
+            "description": "NA",
+            "args": [
+                {
+                    "filename": "results_genevariants.txt",
+                    "type": "table",
+                    "description": "NA",
+                    "order": "1"
+                }
+            ]
+        },
+        {
+            "title": "免疫细胞浸润结果",
+            "order": "2",
+            "description": "下表中为肿瘤细胞周围免疫细胞结果",
+            "args": [
+                {
+                    "filename": "results_expression.txt",
+                    "description": "NA",
+                    "type": "table",
+                    "order": "1"
+                }
+            ]
+        },
+        {
+            "title": "基因富集分析结果",
+            "order": "3",
+            "description": "下图中为基因通路富集分析结果",
+            "args": [
+                {
+                    "filename": "kegg.png",
+                    "type": "picture",
+                    "description": "kegg富集分析图",
+                    "order": "1"
+                },
+                {
+                    "filename": "go.png",
+                    "description": "GO富集分析图",
+                    "type": "picture",
+                    "order": "2"
+                }
+            ]
+        },
+        {
+            "title": "基因变异聚类",
+            "order": "4",
+            "description": "NA",
+            "args": [
+                {
+                    "filename": "heatmap.png",
+                    "type": "picture",
+                    "description": "基因变异富集分析结果",
+                    "order": "1"
+                }
+            ]
+        },
+        {
+            "title": "模型文件",
+            "order": "5",
+            "description": "NA",
+            "args": [
+                {
+                    "filename": "LR_well_trained_model.ckl",
+                    "type": "model",
+                    "description": "使用上传数据训练后模型",
+                    "order": "1"
+                }
+            ]
+        }
+    ]
+}
