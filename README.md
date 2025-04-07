@@ -28,7 +28,7 @@ bash ${absolute_path}/MD2GPS_workflow.sh \
 ```
 
 in_vcf: the input vcf file with the genetic variants of the sample. <br>
-in_hpo: the input file with the observed HPO IDs in one column. <br>
+in_hpo: ~/Database/hp.obo . <br>
 analysis_work_path: the analysis folder with the absolute path. <br>
 out_file_with_path: the output file with the diagnosis results with the absolute path. <br>
 NUM_THREADS: cpu cores, we suggest use not less than 20 cores. <br>

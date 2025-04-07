@@ -3,7 +3,7 @@ input_vcf=$1
 out_file=$2
 Docker_Image=$3
 REF_PATH=$4
-
+work_path=$5
 
 bed_name_with_path='/home/ubuntu/0'
 save_bed_with_path='/home/ubuntu/0'
@@ -21,7 +21,7 @@ source $DNA_panel_path/DNA_panel_all_pid_parameter.sh $Docker_Image
 source $DNA_panel_path/main_scripts/annotation.sh
 
 file_with_path=`realpath $input_vcf`
-work_path=${file_with_path%/*}
+#work_path=${file_with_path%/*}
 
 cd $work_path
 
