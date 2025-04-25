@@ -1,0 +1,28 @@
+{
+  "code":[
+    {
+      "coreNumber":"20"
+    }
+  ],
+  "data":[
+    {
+      "sampleName":"001",
+      "fileName":"/your input vcf file of the patient/home/MD2GPS/Analysis/RD147/RD147.vcf",
+      "HPO_fileName":"/your input file contains HPO IDs in single column with multiple rows of the patient/home/MD2GPS/Analysis/RD147/RD147_hpo.txt"
+    }
+  ],
+  "software":[
+    {
+      "imageName":"/your Docker_image path used for MD2GPS/home/MD2GPS/Docker_image/ubuntu1604_py3_VCF.sif",
+      "imageName2":"/your Docker_image path used for MD2GPS/home/MD2GPS/Docker_image/ubuntu2004_MT.sif",
+      "imageName3":"/your Docker_image path used for MD2GPS/home/MD2GPS/Docker_image/ubuntu2004_Rank.sif",
+      "imageName4":"/your Docker_image path used for MD2GPS/home/MD2GPS/Docker_image/ubuntu2004_MD2GPS.sif",
+    }
+  ],
+  "Analysis_Path": "/your/Analysis result folder with path/001",
+  "GPT_MODEL": "gpt-4",
+  "OPENAI_API_KEY": "your openAI key",
+  "MD2GPS_Database_Path": "/your database folder with path used for MD2GPS/home/MD2GPS/Database/MD2GPS/Database",
+  "projectName":"Genetic disease diagnosis",
+  "Max_debate_rounds": "3"
+}

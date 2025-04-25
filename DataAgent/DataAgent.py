@@ -6,37 +6,45 @@ import pronto
 import openai
 import argparse
 import pandas as pd
+import warnings
 from openai import OpenAI
 
 
 ########## The parameters need to run the script ##########
-parser = argparse.ArgumentParser(description='The script of BioAgent prediction.')
-parser.add_argument('--input', type=str, required=True,
-                    help='The input file after ranking based on the pathogenic.')
-parser.add_argument('--hpo_file', type=str, required=True,
-                    help='The file name includes the hpo id. (format: sep = \n.)')
+parser = argparse.ArgumentParser(description='The script of DataAgent prediction.')
+parser.add_argument('--input_file', type=str, required=True,
+                    help='Path to the DataAgent ranking result file. (txt)')
+parser.add_argument('--output_file', type=str, required=True,
+                    help='The output file name and path you want. (txt)')
+parser.add_argument('--hpo_file_patient', type=str, required=True,
+                    help='The file includes the hpo id. (format: sep = \n.)')
 parser.add_argument('--prompt_file', type=str, required=True,
-                    help='The file includes prompt (.json format). (format: sep = \n.)')
-parser.add_argument('--hpo_dataset_path', type=str, required=True,
-                    help='Path to the hpo dataset file. (file format: .obo)')
+                    help='The file includes prompt. (.json format) (format: sep = \n.)')
+parser.add_argument('--hpo_file_obo', type=str, required=True,
+                    help='hpo dataset file with path. (file format: .obo)')
 parser.add_argument('--OPENAI_API_KEY', type=str, required=True, help='OpenAI API key.')
 parser.add_argument('--model', type=str, required=True, help='The openai model you choose to use.')
-parser.add_argument('--out', type=str, required=True, help='The output file.')
 args = parser.parse_args()
 
 
-PDS_results_file = args.input
-hpo_file = args.hpo_file
-prompt_file = args.prompt_file
-hpo_dataset_path = args.hpo_dataset_path
+input_file = args.input_file
+output_file = args.output_file
+hpo_file_patient = args.hpo_file_patient
+hpo_dataset_path = args.hpo_file_obo
+prompt_file_path = args.prompt_file
 OPENAI_API_KEY = args.OPENAI_API_KEY
 chat_model = args.model
-outFile = args.out
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+warnings.filterwarnings("ignore", category=UnicodeWarning)
+
 
 ontology = pronto.Ontology(hpo_dataset_path)
 HPO_dict = {term.id: term.name for term in ontology.terms()}
+
+with open(prompt_file_path, 'r', encoding='utf-8') as json_file:
+    prompt = json.load(json_file)
+    DataAgent_prompt = prompt['DataAgent_prompt']
 
 
 def extract_gene(response_str):
@@ -91,7 +99,8 @@ def LLM_diagnose_pathogenic_gene_order(prompt):
                 messages=[
                     {"role": "system", "content": "You are a scientist with expertise in both biology and medicine, facing a complex patient case."},
                     {"role": "user", "content": prompt}
-                ]
+                ],
+                seed=928
             )
             if response.choices and response.choices[0].message.content.strip():
                 LLM_prediction = response.choices[0].message.content
@@ -117,41 +126,37 @@ def LLM_diagnose_pathogenic_gene_order(prompt):
 max_attempts = 3
 DataAgent_pathogenic_gene_order = None
 
+########## main ###########
+
+print("Data Agent analysis starts!")
 
 # read the phenotypes
-if os.path.exists(hpo_file):
-    phenotype_list = read_target_hpo(hpo_file)
+if os.path.exists(hpo_file_patient):
+    phenotype_list = read_target_hpo(hpo_file_patient)
 else:
-    raise FileNotFoundError(f"The hpo list file is not exist: {hpo_file}")
-
+    raise FileNotFoundError(f"The hpo list file is not exist: {hpo_file_patient}")
 
 # read the ranking result
-if os.path.exists(PDS_results_file):
-    gene_list_ordered, gene_list, gene_num = read_pds_diagnosis_result(PDS_results_file)
-else:
-    raise FileNotFoundError(f"The DataAgent ranking result file is not exist: {PDS_results_file}")
 
+if os.path.exists(input_file):
+    gene_list_ordered, gene_list, gene_num = read_pds_diagnosis_result(input_file)
+else:
+    raise FileNotFoundError(f"The DataAgent ranking result file is not exist: {input_file}")
 
 # If there is no gene in PDS result, diagnosis end.
 if gene_num == 0:
     DataAgent_pathogenic_gene_order = "Not Found"
-    with open(outFile, 'w', encoding='utf-8') as file:
+    with open(output_file, 'w', encoding='utf-8') as file:
         file.write(f"The patient has no gene list from DataAgent rank result, diagnosis end.")
-else:
-    # read the DataAgent prompt
-    with open(prompt_file, 'r', encoding='utf-8') as json_file:
-        prompt = json.load(json_file)
-        DataAgent_prompt = prompt['DataAgent_prompt']
-    
-        DataAgent_prompt_fill = DataAgent_prompt.replace("{phenotype_list_placeholder}", phenotype_list)
-        DataAgent_prompt_fill = DataAgent_prompt_fill.replace("{gene_list_placeholder}", gene_list)
-        DataAgent_prompt_fill = DataAgent_prompt_fill.replace("{proposed_mutation_order_placeholder}", gene_list_ordered)
-    
+elif gene_num > 0:
+    DataAgent_prompt_fill = DataAgent_prompt.replace("{phenotype_list_placeholder}", phenotype_list)
+    DataAgent_prompt_fill = DataAgent_prompt_fill.replace("{gene_list_placeholder}", gene_list)
+    DataAgent_prompt_fill = DataAgent_prompt_fill.replace("{proposed_mutation_order_placeholder}", gene_list_ordered)
     # print(DataAgent_prompt_fill)
-    
+
     # get the DataAgent response
     for attempt in range(max_attempts):
-        DataAgent_analysis = LLM_diagnose_pathogenic_gene_order(DataAgent_prompt_fill)  # KPAgent response
+        DataAgent_analysis = LLM_diagnose_pathogenic_gene_order(DataAgent_prompt_fill)  # DataAgent response
         DataAgent_pathogenic_gene_order = extract_gene(DataAgent_analysis)
         DataAgent_order_num = DataAgent_pathogenic_gene_order.count(',') + 1 if DataAgent_pathogenic_gene_order not in ['no gene list order', ''] else 0
         time.sleep(1)
@@ -160,9 +165,9 @@ else:
         else:
             tries = attempt + 1
             all_DataAgent_analysis = f"This is the {tries} answer: " + DataAgent_analysis + f"The Genetic_mutation_order of this answer does not include all the genes in the gene list：{gene_list}. Please Answer again."
-    
+
     # store the DataAgent response
-    with open(outFile, 'w', encoding='utf-8') as file:
+    with open(output_file, 'w', encoding='utf-8') as file:
         file.write(DataAgent_analysis)
 
 print("Data Agent analysis is finished!")

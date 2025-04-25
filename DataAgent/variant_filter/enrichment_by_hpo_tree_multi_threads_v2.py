@@ -77,7 +77,7 @@ def getVariantGeneHPO(disease_name, disease_gene, variant_genes, gene_relation_d
             if len(disease_inheritance)>0:
                 if (not re.findall('dominant', disease_inheritance[0])) and ('Hom' not in gene_genotype[gene]):
                     #candidate compound heterozygous
-                    if len(variant_data.loc[variant_data['Gene_Name']==gene])>1:
+                    if (len(variant_data.loc[variant_data['Gene_Name']==gene])>1) or (re.findall('X-linked', disease_inheritance[0])):
                         disease_related_pathway_genes.append(gene)
                         direct_genes.append(gene)
                 else:
@@ -256,11 +256,13 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
                     frequency_list=[]
                     effect_impact=""
                     effect=""
+                    clinvar_db=""
                     if hit_direct_gene == 'NA':
                         genotype="NA"
                         frequency_list.append(0)
                         effect_impact="NA"
                         effect="NA"
+                        clinvar_db='NA'
                     else:
                         hit_genes=re.split(";",hit_direct_gene)
                         for gene in hit_genes:
@@ -269,8 +271,12 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
                                 frequency_temp=variant_data.loc[variant_data['Gene_Name']==gene]['VarFreq_precent_max'].to_list()
                                 effect_impact_temp=variant_data.loc[variant_data['Gene_Name']==gene]['Effect_Impact'].to_list()
                                 effect=variant_data.loc[variant_data['Gene_Name']==gene]['Effect'].to_list()
+                                clinvar_db_temp=variant_data.loc[variant_data['Gene_Name']==gene]['Clinvar_latest_evidence'].to_list()
                                 genotype=";".join(genotype_temp)
                                 effect=str(effect[0])
+                                clinvar_db=";".join(clinvar_db_temp)
+                                # if gene == 'COMP':
+                                    # print('COMP:'+clinvar_db+'\n')
                                 effect_impact=str(effect_impact_temp[0])
                                 for temp in frequency_temp:
                                     frequency_list.append(temp)
@@ -283,16 +289,21 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
                                 frequency_temp=variant_data.loc[variant_data['Gene_Name']==gene]['VarFreq_precent_max'].to_list()
                                 effect_impact_temp=variant_data.loc[variant_data['Gene_Name']==gene]['Effect_Impact'].to_list()
                                 effect_temp=variant_data.loc[variant_data['Gene_Name']==gene]['Effect'].to_list()
+                                clinvar_db_temp=variant_data.loc[variant_data['Gene_Name']==gene]['Clinvar_latest_evidence'].to_list()
+                                clinvar_db_temp_str=";".join(clinvar_db_temp)
                                 for temp in frequency_temp:
                                     frequency_list.append(temp)
                                 genotype=str(genotype)+'|'+str(genotype_temp_str)
                                 #frequency=str(frequency[0])+'|'+str(frequency_temp)
                                 effect=str(effect_temp[0])
+                                clinvar_db=str(clinvar_db)+'|'+str(clinvar_db_temp_str)
                                 effect_impact=str(effect_impact_temp[0])
                                 for temp in effect_impact_temp:
                                     if re.findall('HIGH',str(temp)):
                                         effect_impact='HIGH'
-                    
+                            # if gene == 'CYP17A1':
+                                # print(row+'\n')
+                                # print('CYP17A1:'+clinvar_db)
                     # genotypes.append(genotype)
                     # gene_frequency.append(frequency)
                     # gene_effect_impact.append(effect_impact)
@@ -395,7 +406,7 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
                             pop_freq=0
                     #print(str(pop_freq)+'\n')
                     # tree count, query count, hit count, pvalue
-                    result_temp=(disease_name, hit_obohpo_min, hit_hpo_freq_min, hit_direct_gene, inheritance, pop_freq, genotype, AAchange, effect_impact, effect, frequency, pathwayGenes, disease_hpo_numb, query_hpo_numb, hit_hpo_numb, query_genehpo_numb,genehpo_hit_numb, enrich_pvalue_hpo, enrich_pvalue_genehpo)
+                    result_temp=(disease_name, hit_obohpo_min, hit_hpo_freq_min, hit_direct_gene, inheritance, pop_freq, genotype, AAchange, effect_impact, effect, frequency, clinvar_db, pathwayGenes, disease_hpo_numb, query_hpo_numb, hit_hpo_numb, query_genehpo_numb,genehpo_hit_numb, enrich_pvalue_hpo, enrich_pvalue_genehpo)
                     enrich_results.append(result_temp)
                     HPO_pvalues.append(enrich_pvalue_hpo)
                     geneHPO_pvalues.append(enrich_pvalue_genehpo)
@@ -431,7 +442,7 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
     hit_hpos_df=pd.DataFrame(hit_hpos)
     hit_genehpos_df=pd.DataFrame(hit_genehpos)
     out_recs=pd.concat([enrich_result_df,hit_key_hpos_df,hit_key_genehpos_df,hit_hpos_df,hit_genehpos_df],axis=1)
-    out_recs.columns=['DiseaseName','Hit_Minimum_HPO', 'Hit_Minimum_HPO_Freq','Pathogenic_Gene','Disease_Inheritance','Population_Freq','Genotype','Amino_Change','Effect_Impact','Effect','VarFreq','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO']
+    out_recs.columns=['DiseaseName','Hit_Minimum_HPO', 'Hit_Minimum_HPO_Freq','Pathogenic_Gene','Disease_Inheritance','Population_Freq','Genotype','Amino_Change','Effect_Impact','Effect','VarFreq','Clinvar_latest_evidence','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO']
     
     out_recs=out_recs.sort_values(by='Enrich_ObservedHPO_pvalue',ascending=True)
     #out_recs_result=out_recs.loc[(out_recs['GeneHPO_pvalue_Bonf']<0.05) & (out_recs['GeneHPO_pvalue_Bonf']<0.05)]
@@ -441,7 +452,7 @@ def get_diagnosis_results(threadID: str, sid: str, out_dir: str, start_idx: int,
 
 parser = argparse.ArgumentParser(description='get parent HPOs for the queried HPOs, output the their parent HPOs' )
 parser.add_argument('--hpo_file_patient', type=str, default="query_HPO.txt", help="file including the patient hpos")
-parser.add_argument('--input', type=str, default="gene_variants.txt", help="input file including the gene variants")
+parser.add_argument('--input', type=str, default="gene_variants.txt", help="file including the gene variants")
 parser.add_argument('--disease_hpo', type=str, default="Disease_HPO_tree.txt", help="file including the disease related hpos")
 parser.add_argument('--disease_gene', type=str, default="Disease_Gene_2col.txt", help="file including the disease related genes")
 parser.add_argument('--gene_relation', type=str, default="KEGG_Gene_Relation_pvalue_symbolID.txt", help="file including the gene relation statistic results")
@@ -472,20 +483,20 @@ out_all=args.out_all
 out_filter=args.out_filter
 out_filter2=args.out_filter2
 
-# query_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/results/CN-2100561/target_hpo.txt'
-# query_gene_file='/export/home/renyongyong/project/PHD/rare_disease/results/CN-2100561/results_all_filtered.txt'
-# disease_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_HPO_tree.txt'
-# disease_gene_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_Gene_2col.txt'
-# gene_relation_file='/export/home/renyongyong/project/PHD/rare_disease/database/KEGG_Gene_Relation_pvalue_symbolID.txt'
-# gene_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/database/Gene_HPO_symbol_2col.txt'
-# HPO_obo_file='/export/home/renyongyong/project/PHD/rare_disease/database/hp.obo'
-# inheritance_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_inheritance.txt'
-# freq_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_HPO_frequency.txt'
-# out_all='/export/home/renyongyong/project/PHD/rare_disease/results/CN-2100561/test_diagnosis_all.txt'
-# out_filter='/export/home/renyongyong/project/PHD/rare_disease/results/CN-2100561/test_diagnosis_all_filter.txt'
-# out_filter2='/export/home/renyongyong/project/PHD/rare_disease/results/CN-2100561/test_diagnosis_all_filter2.txt'
-# sid='CN-2100561'
-# threads=30
+#query_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/software/22D02173684_HPO.txt'
+#query_gene_file='/export/home/renyongyong/project/PHD/rare_disease/software/22D02173684_results_all_filtered.txt'
+#disease_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_HPO_tree.txt'
+#disease_gene_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_Gene_2col.txt'
+#gene_relation_file='/export/home/renyongyong/project/PHD/rare_disease/database/KEGG_Gene_Relation_pvalue_symbolID.txt'
+#gene_hpo_file='/export/home/renyongyong/project/PHD/rare_disease/database/Gene_HPO_symbol_2col.txt'
+#HPO_obo_file='/export/home/renyongyong/project/PHD/rare_disease/database/hp.obo'
+#inheritance_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_inheritance_v2.txt'
+#freq_file='/export/home/renyongyong/project/PHD/rare_disease/database/Disease_HPO_frequency.txt'
+#out_all='/export/home/renyongyong/project/PHD/rare_disease/software/22D02173684_diagnosis_all.txt'
+#out_filter='/export/home/renyongyong/project/PHD/rare_disease/software/22D02173684_diagnosis_all_filter.txt'
+#out_filter2='/export/home/renyongyong/project/PHD/rare_disease/software/22D02173684_diagnosis_all_filter2.txt'
+#sid='22D02173684'
+#threads=30
 
 
 
@@ -560,6 +571,9 @@ f.close()
 
 #run with multiple process
 def myThread(threadID, sid, out_dir, start_idx: int, end_idx: int):
+    # 确认输出路径，如果没有，创建一个
+    os.makedirs(out_dir, exist_ok=True)
+    
     print ("Start " + str(sid) + ':' + str(start_idx) + '_' + str(end_idx))
     get_diagnosis_results(threadID, sid, out_dir, start_idx, end_idx)
 
@@ -569,7 +583,7 @@ threadID = 1
 # creat and start multiple threads
 out_dir=os.path.abspath(os.path.dirname(out_all))
 for i in range(threads):
-    splice_count=int(5685/int(threads))#5685 diseases in OMIM database
+    splice_count=int(5685/int(threads))
     start_idx=i*splice_count
     end_idx=start_idx+splice_count-1
     if i==0:
@@ -601,7 +615,7 @@ genehpo_p_adj_df=pd.DataFrame(genehpo_p_adj)
 
 
 out_recs=pd.concat([out_results_df,HPO_p_adj_df,genehpo_p_adj_df],axis=1)
-out_recs.columns=['DiseaseName','Hit_Minimum_HPO','Hit_Minimum_HPO_Freq','Pathogenic_Gene','Disease_Inheritance','Population_Freq','Genotype','Amino_Change','Effect_Impact','Effect','VarFreq','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO','Enrich_ObservedHPO_pvalue_Bonf','Enrich_GeneHPO_pvalue_Bonf']
+out_recs.columns=['DiseaseName','Hit_Minimum_HPO','Hit_Minimum_HPO_Freq','Pathogenic_Gene','Disease_Inheritance','Population_Freq','Genotype','Amino_Change','Effect_Impact','Effect','VarFreq','Clinvar_latest_evidence','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO','Enrich_ObservedHPO_pvalue_Bonf','Enrich_GeneHPO_pvalue_Bonf']
 out_recs['VarFreq_Group']=np.where(out_recs['VarFreq'] <30,0,1)
 
 temp_df=pd.DataFrame()
@@ -629,7 +643,7 @@ p3=np.where((out_recs['Effect_Impact']=='HIGH'),1,0)
 p4=np.where((out_recs['Hit_observedHPO']!='NA'),1,0)
 out_recs['HPO_geneImpact_group']=p3+p4
 
-col_order=['DiseaseName','Hit_Minimum_HPO','Hit_Minimum_HPO_Freq','Enrich_ObservedHPO_pvalue_Bonf','Enrich_GeneHPO_pvalue_Bonf','Enrich_observeHPO_score','Enrich_GeneHPO_score','Score_max','Score_total','HPO_geneImpact_group','VarFreq_Group','Population_Freq','Effect_Impact','Disease_Inheritance','Genotype','Pathogenic_Gene','Amino_Change','Effect','VarFreq','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO']
+col_order=['DiseaseName','Hit_Minimum_HPO','Hit_Minimum_HPO_Freq','Enrich_ObservedHPO_pvalue_Bonf','Enrich_GeneHPO_pvalue_Bonf','Enrich_observeHPO_score','Enrich_GeneHPO_score','Score_max','Score_total','HPO_geneImpact_group','VarFreq_Group','Population_Freq','Effect_Impact','Disease_Inheritance','Genotype','Pathogenic_Gene','Amino_Change','Effect','VarFreq','Clinvar_latest_evidence','Interaction_variantGenes','Disease_AncestorHPO_Count','Query_observedAncestorHPO_Count','Hit_observedHPO_Count','Query_Ancestor_GeneHPO_Count','Hit_GeneHPO_Count','Enrich_ObservedHPO_pvalue','Enrich_GeneHPO_pvalue','Hit_observedHPO','Hit_geneHPO','Hit_observedAncestorHPO','Hit_geneAncestorHPO']
 out_recs=out_recs[col_order]
 out_recs=out_recs.sort_values(by='Score_max',ascending=False)
 out_recs.to_csv(out_all,sep='\t',index=False)
@@ -644,13 +658,17 @@ out_recs_filtered=out_recs.loc[(~ out_recs['Effect'].str.contains('inframe_delet
 out_recs_filtered['Effect_Impact']=out_recs_filtered['Effect_Impact'].astype('category')
 out_recs_filtered['Effect_Impact'].cat.set_categories(impact_effect_order, inplace=True)
 
-out_recs_filtered_sort=out_recs_filtered_sort.sort_values(by=['HPO_geneImpact_group','Hit_Minimum_HPO_Freq','Score_total'], ascending=(False,True,False))
+out_recs_filtered_sort=out_recs_filtered.sort_values(by=['HPO_geneImpact_group','Hit_Minimum_HPO_Freq','Score_total'], ascending=(False,True,False))
 out_recs_filtered_sort.to_csv(out_filter,sep='\t',index=False)
 
-out_recs_filtered=out_recs.loc[(out_recs['VarFreq']>=30) & (~ out_recs['Effect'].str.contains('inframe_deletion'))]
+#out_recs_filtered=out_recs.loc[(out_recs['VarFreq']>=30) & (~ out_recs['Effect'].str.contains('inframe_deletion'))]
+out_recs_filtered = out_recs.loc[((out_recs['VarFreq']>=30) & ((~ out_recs['Effect'].str.contains('inframe')) | ((out_recs['Effect'].str.contains('inframe')) & ((out_recs['Clinvar_latest_evidence'].str.contains('pathogenic', case=False))))))]
 out_recs_filtered['Effect_Impact']=out_recs_filtered['Effect_Impact'].astype('category')
 out_recs_filtered['Effect_Impact'].cat.set_categories(impact_effect_order, inplace=True)
 
-out_recs_filtered_sort2=out_recs_filtered_sort.sort_values(by=['HPO_geneImpact_group','Hit_Minimum_HPO_Freq','Score_total'], ascending=(False,True,False))
+out_recs_filtered_sort2=out_recs_filtered.sort_values(by=['HPO_geneImpact_group','Hit_Minimum_HPO_Freq','Score_total'], ascending=(False,True,False))
 out_recs_filtered_sort2.to_csv(out_filter2,sep='\t',index=False)
+
+
+
 
