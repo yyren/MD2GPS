@@ -50,4 +50,4 @@ bash ${absolute_path}/MD2GPS_Main.sh \
 
 ****Project_Config.json:**** the json file contains the parameters should be provided by the user. <br>
 ****MD2GPS_diagnosis_result.txt:**** the analysis result file contains the diagnosis result and explanations. <br>
-****ubuntu1604_py3_VCF.sif:**** the docker image file download from BMAP SRS repository(https://bmap.sjtu.edu.cn/softstorage/details/54). <br>
+****ubuntu1604_py3_VCF.sif:**** the docker image file can be downloaded from BMAP SRS repository(https://bmap.sjtu.edu.cn/softstorage/details/54). <br>
