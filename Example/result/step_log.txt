@@ -1,0 +1,3 @@
+clean results and not exist save_bed_name
+no filter
+do not filter by bed and MAF

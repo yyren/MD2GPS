@@ -1,0 +1,31 @@
+{
+  "args": [
+    {
+      "title": "Candidate Pathogenic Variants",
+      "order": "1",
+      "description": "Reported by DataAgent.",
+      "args": [
+        {
+          "order": "1",
+          "type": "table",
+          "description": "Filter by MAF, SIFT, Polyphen2, MutationTaster2, clinvar, HGMD, and GPT-4",
+          "filename": "DataAgent_candidate_genetic_variants.txt"
+        }
+      ]
+    },
+    {
+      "title": "Diagnosis Results",
+      "order": "2",
+      "description": "Results of the Three-Round Debate between Data Agent and Knowledge Agent",
+      "args": [
+        {
+          "order": "1",
+          "type": "text",
+          "description": "",
+          "filename": "Debate_diagnosis_result.txt"
+        }
+      ]
+    }
+  ],
+  "folderName": "874_202604021531362859"
+}

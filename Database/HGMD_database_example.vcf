@@ -1,0 +1,24 @@
+##fileformat=VCFv4.2
+##note=VCF file is compatible with VCFv4.3 if required by updating fileformat parameter to v4.3
+##copyright=HGMD. Not for redistribution.
+##source=HGMD_PRO_2024.1
+##reference=GRCh37
+##comment="REF and ALT sequences are both on forward strand of reference assembly"
+##comment="Includes padding base in REF and ALT sequences for combined deletions and insertions (indels)"
+##INFO=<ID=CLASS,Number=1,Type=String,Description="Mutation Category, https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/global.php#cats">
+##INFO=<ID=MUT,Number=1,Type=String,Description="HGMD mutant allele">
+##INFO=<ID=GENE,Number=1,Type=String,Description="Gene symbol">
+##INFO=<ID=STRAND,Number=1,Type=String,Description="Gene strand">
+##INFO=<ID=DNA,Number=1,Type=String,Description="DNA annotation.  The ':' (colon) in DNA HGVS descriptions have been replaced with '%3A'.  Instructions to deal with such characters with special meaning are given in Section 1.2 of the VCFv4.3 specfication.">
+##INFO=<ID=PROT,Number=1,Type=String,Description="Protein annotation.  The ':' (colon), the ';' (semicolon), and the '=' (equal sign) in protein HGVS descriptions have been replaced with '%3A', '%3B', and '%3D' respectively.  Instructions to deal with such characters with special meaning are given in Section 1.2 of the VCFv4.3 specfication.">
+##INFO=<ID=DB,Number=1,Type=String,Description="dbSNP identifier, build 151">
+##INFO=<ID=PHEN,Number=1,Type=String,Description="HGMD primary phenotype.  The ',' (comma) in primary phenotype descriptions have been replaced with '%2C'.  Instructions to deal with such characters with special meaning are given in Section 1.2 of the VCFv4.3 specfication.">
+##INFO=<ID=RANKSCORE,Number=1,Type=Float,Description="HGMD computed rankscore.  The HGMD computed rankscore is a probability of pathogenicity between 0 and 1, with 1 being most likely disease-causing compared to other HGMD entries. The score is computed using a machine learning approach, and is based upon multiple lines of evidence, including HGMD literature support for pathogenicity, evolutionary conservation (100 way vertebrate alignment), variant allele frequency and in-silico pathogenicity prediction. Scores may be used to prioritize and rank multiple HGMD variants which have been found in the same sample, so in practise refer to the tag first and then use the rankscore to rank variants in the same variant class (e.g. DM or DM? etc). This feature is under ongoing development.">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of variant described in this record">
+##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Description in length between REF and ALT alleles">
+##ALT=<ID=DEL,Description="Deletion">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	861322	CM2039807	A	G	.	.	CLASS=DM?;MUT=ALT;GENE=SAMD11;STRAND=+;DNA=NM_152486.4%3Ac.1A>G;PROT=NP_689699.3%3Ap.M1?;DB=rs1403306757;PHEN="Retinitis_pigmentosa";RANKSCORE=0.57
+1	861324	CM2039808	G	A	.	.	CLASS=DM?;MUT=ALT;GENE=SAMD11;STRAND=+;DNA=NM_152486.4%3Ac.3G>A;PROT=NP_689699.3%3Ap.M1?;DB=rs1475021625;PHEN="Retinitis_pigmentosa";RANKSCORE=0.37
+1	865538	CD2039809	CG	C	.	.	CLASS=DM?;MUT=ALT;GENE=SAMD11;STRAND=+;DNA=NM_152486.4%3Ac.81delG;PROT=NP_689699.3%3Ap.(Arg28Glyfs*16);DB=rs1386232016;PHEN="Retinitis_pigmentosa"
