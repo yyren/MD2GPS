@@ -1,0 +1,28 @@
+{
+  "code":[
+    {
+      "coreNumber":"20"
+    }
+  ],
+  "data":[
+    {
+      "sampleName":"RD_159",
+      "fileName":"/home/MD2GPS/data/RD_159.vcf",
+      "HPO_fileName":"/home/MD2GPS/data/RD_159_hpo.txt"
+    }
+  ],
+  "software":[
+    {
+      "imageName":"/home/MD2GPS/software/ubuntu1604_py3_VCF.sif",
+      "imageName2":"/home/MD2GPS/software/ubuntu2004_MT.sif",
+      "imageName3":"/home/MD2GPS/software/ubuntu2004_Rank.sif",
+      "imageName4":"/home/MD2GPS/software/ubuntu2004_MD2GPS.sif",
+    }
+  ],
+  "Analysis_Path": "/home/MD2GPS/analysis/RD_159",
+  "GPT_MODEL": "gpt-4",
+  "OPENAI_API_KEY": "your openAI key",
+  "MD2GPS_Database_Path": "/home/MD2GPS/Database",
+  "projectName":"Genetic disease diagnosis",
+  "Max_debate_rounds": "3"
+}
